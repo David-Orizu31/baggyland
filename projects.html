@@ -9,6 +9,185 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <link rel="stylesheet" href="css/style.css">
 </head>
+
+<!-- =====================================================
+  STYLES — paste into your main CSS or a <style> tag
+====================================================== -->
+<style>
+/* Controls bar */
+.projects-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+ 
+.projects-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+}
+ 
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 17px;
+  height: 17px;
+  color: var(--text-muted, #888);
+  pointer-events: none;
+}
+ 
+.projects-search {
+  width: 100%;
+  padding: 11px 40px 11px 42px;
+  border: 1px solid var(--border, rgba(255,255,255,0.12));
+  border-radius: 8px;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  color: var(--text, #fff);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+ 
+.projects-search::placeholder { color: var(--text-muted, #888); }
+.projects-search:focus { border-color: var(--accent, #c8a86b); }
+ 
+.search-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  display: none;
+  line-height: 1;
+}
+.search-clear.visible { display: block; }
+.search-clear:hover { color: var(--text, #fff); }
+ 
+.projects-count {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+ 
+/* Lazy img — fade in on load */
+.lazy-img {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.lazy-img.loaded {
+  opacity: 1;
+}
+ 
+/* Empty state */
+.projects-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted, #888);
+}
+.projects-empty svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+.projects-empty p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+.projects-empty strong { color: var(--text, #fff); }
+.btn-clear-search {
+  background: none;
+  border: 1px solid var(--border, rgba(255,255,255,0.2));
+  color: var(--text, #fff);
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-clear-search:hover { background: rgba(255,255,255,0.07); border-color: var(--accent, #c8a86b); }
+ 
+/* Pagination */
+.projects-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 48px;
+}
+.page-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border, rgba(255,255,255,0.15));
+  background: none;
+  color: var(--text, #fff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+.page-btn svg { width: 16px; height: 16px; }
+.page-btn:hover:not(:disabled) { background: rgba(255,255,255,0.07); border-color: var(--accent, #c8a86b); }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+ 
+.page-numbers {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.page-num {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--text-muted, #aaa);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-family: inherit;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-num:hover:not(.active) { color: var(--text, #fff); border-color: var(--border, rgba(255,255,255,0.15)); }
+.page-num.active {
+  background: var(--accent, #c8a86b);
+  color: #fff;
+  border-color: var(--accent, #c8a86b);
+  font-weight: 600;
+}
+.page-ellipsis {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #888);
+  font-size: 0.88rem;
+  pointer-events: none;
+}
+</style>
+
 <body>
 
 <!-- ─── NAV ─── -->
@@ -36,14 +215,31 @@
   <div class="section-label">Portfolio</div>
   <h2 class="section-title">OUR PRODUCTIONS</h2>
   <p class="section-body">A showcase of cinematic work that captures the spirit of Africa's storytelling.</p>
-  <div class="projects-grid">
 
-    <div class="project-card">
+
+  <!-- =====================================================
+    DROP-IN REPLACEMENT: Projects Section
+    Paste this block wherever your .projects-grid currently lives.
+    Requires: your existing CSS + the <style> and <script> below.
+  ====================================================== -->
+  
+  <!-- SEARCH BAR -->
+  <div class="projects-controls">
+    <div class="projects-search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="projectSearch" class="projects-search" placeholder="Search projects…" autocomplete="off" spellcheck="false">
+      <button class="search-clear" id="searchClear" aria-label="Clear search">✕</button>
+    </div>
+    <div class="projects-count" id="projectsCount"></div>
+  </div>
+  
+  <!-- GRID -->
+  <div class="projects-grid" id="projectsGrid">
+  
+    <div class="project-card" data-title="Double Cross" data-genre="Drama" data-synopsis="power deception love survival trust">
       <div class="project-poster">
         <div class="poster-placeholder">
-          <!-- <span class="poster-icon">🎬</span>
-          <span class="poster-title-text">Her Father's Pride</span> -->
-          <img src="img/projects/double cross idea 4.jpg" alt="Double Cross" style="width:100%;height:100%;object-fit:cover;">
+          <img data-src="img/projects/double cross idea 4.jpg" alt="Double Cross" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="project-overlay">
           <a href="https://youtu.be/qN17_qWhwe0?si=dh6-2VmSvGnfI-eP" target="_blank" class="btn-trailer">Watch Trailer</a>
@@ -52,132 +248,285 @@
       <div class="project-info">
         <div class="project-genre">Drama</div>
         <div class="project-title">Double Cross</div>
-        <p class="project-synopsis">Double Cross is a story of power, deception, love and survival. In this city, trust is a luxury nobody can afford..</p>
+        <p class="project-synopsis">Double Cross is a story of power, deception, love and survival. In this city, trust is a luxury nobody can afford.</p>
         <a href="https://youtu.be/qN17_qWhwe0?si=dh6-2VmSvGnfI-eP" target="_blank" class="btn-trailer">Watch Trailer</a>
       </div>
     </div>
-
-
-    <div class="project-card">
+  
+    <div class="project-card" data-title="Tangled Episode 6" data-genre="Drama" data-synopsis="classroom school uniforms high school">
       <div class="project-poster">
         <div class="poster-placeholder">
-          <!-- <span class="poster-icon">🎬</span>
-          <span class="poster-title-text">Her Father's Pride</span> -->
-          <img src="img/projects/tangled episode finale ig.jpg" alt="Tangled Episode 6" style="width:100%;height:100%;object-fit:cover;">
+          <img data-src="img/projects/tangled episode finale ig.jpg" alt="Tangled Episode 6" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="project-overlay">
           <a href="https://youtu.be/yL7bYCGACjY?si=Y28kYSCqZ-mWB1Cw" target="_blank" class="btn-trailer">Watch Trailer</a>
         </div>
       </div>
       <div class="project-info">
-        <div class="project-genre">Comedy · Drama</div>
+        <div class="project-genre">Drama</div>
         <div class="project-title">Tangled Episode 6</div>
         <p class="project-synopsis">Tangled is a story of all that happens behind the classroom doors. Same uniforms but different agendas. High school just got complicated.</p>
         <a href="https://youtu.be/yL7bYCGACjY?si=Y28kYSCqZ-mWB1Cw" target="_blank" class="btn-trailer">Watch Trailer</a>
       </div>
     </div>
-
-    <div class="project-card">
+  
+    <div class="project-card" data-title="Tangled Episode 5" data-genre="Drama" data-synopsis="classroom school uniforms high school">
       <div class="project-poster">
         <div class="poster-placeholder">
-          <!-- <span class="poster-icon">🎬</span>
-          <span class="poster-title-text">Her Father's Pride</span> -->
-          <img src="img/projects/her fathers pride.jpg" alt="Her Father's Pride" style="width:100%;height:100%;object-fit:cover;">
+          <img data-src="img/projects/tangled episode 5 showing now.jpg" alt="Tangled Episode 5" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="project-overlay">
-          <a href="https://youtu.be/IO1jCnKLi9Q?si=PxcuFds73wme22WH" target="_blank" class="btn-trailer">Watch Trailer</a>
+          <a href="https://youtu.be/7h5HLM_YAR8?si=WAFN7QFj8Bm05LLJ" target="_blank" class="btn-trailer">Watch Trailer</a>
         </div>
       </div>
       <div class="project-info">
         <div class="project-genre">Drama</div>
-        <div class="project-title">Her Father's Pride</div>
-        <p class="project-synopsis">Her Father’s Pride is a story of family, expectations and the Courage to live your own truth.</p>
-        <a href="https://youtu.be/IO1jCnKLi9Q?si=PxcuFds73wme22WH" target="_blank" class="btn-trailer">Watch Trailer</a>
+        <div class="project-title">Tangled Episode 5</div>
+        <p class="project-synopsis">Tangled is a story of all that happens behind the classroom doors. Same uniforms but different agendas. High school just got complicated.</p>
+        <a href="https://youtu.be/7h5HLM_YAR8?si=WAFN7QFj8Bm05LLJ" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+  
+    <div class="project-card" data-title="Tangled Episode 4" data-genre="Drama" data-synopsis="classroom school uniforms high school">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/tangled episode 4 showing now.jpg" alt="Tangled Episode 4" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/ogLDfxRWFLA?si=pT3QX0CmpMIL8PE2" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">Tangled Episode 4</div>
+        <p class="project-synopsis">Tangled is a story of all that happens behind the classroom doors. Same uniforms but different agendas. High school just got complicated.</p>
+        <a href="https://youtu.be/ogLDfxRWFLA?si=pT3QX0CmpMIL8PE2" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+  
+    <div class="project-card" data-title="Tangled Episode 3" data-genre="Drama" data-synopsis="classroom school uniforms high school">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/tangled episode 3.jpg" alt="Tangled Episode 3" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/mPhjsYZVoXI?si=58W7Gwl8JkqNQb6W" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">Tangled Episode 3</div>
+        <p class="project-synopsis">Tangled is a story of all that happens behind the classroom doors. Same uniforms but different agendas. High school just got complicated.</p>
+        <a href="https://youtu.be/mPhjsYZVoXI?si=58W7Gwl8JkqNQb6W" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+  
+    <div class="project-card" data-title="Tangled Episode 2" data-genre="Drama" data-synopsis="classroom school uniforms high school">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/tangled epiode 2.jpg" alt="Tangled Episode 2" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/eY76VqG8pew?si=X1CoXKwA8rnbqLcl" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">Tangled Episode 2</div>
+        <p class="project-synopsis">Tangled is a story of all that happens behind the classroom doors. Same uniforms but different agendas. High school just got complicated.</p>
+        <a href="https://youtu.be/eY76VqG8pew?si=X1CoXKwA8rnbqLcl" target="_blank" class="btn-trailer">Watch Trailer</a>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card" data-title="Tangled Episode 1" data-genre="Drama" data-synopsis="classroom school uniforms high school">
       <div class="project-poster">
         <div class="poster-placeholder">
-          <!-- <span class="poster-icon">🎬</span>
-          <span class="poster-title-text">Her Father's Pride</span> -->
-          <img src="img/projects/shadows of betrayal sunny.jpg" alt="Her Father's Pride" style="width:100%;height:100%;object-fit:cover;">
+          <img data-src="img/projects/tangled epiode 1.jpg" alt="Tangled Episode 1" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="project-overlay">
-          <a href="https://youtu.be/3dz8m25Ck8c?si=QY5QgHJ9HHlAJlva" target="_blank" class="btn-trailer">Watch Trailer</a>
+          <a href="https://youtu.be/bubbwBOv6wk?si=Q1Q_1o-_xG7WtA7_" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">Tangled Episode 1</div>
+        <p class="project-synopsis">Tangled is a story of all that happens behind the classroom doors. Same uniforms but different agendas. High school just got complicated.</p>
+        <a href="https://youtu.be/bubbwBOv6wk?si=Q1Q_1o-_xG7WtA7_" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+
+    <div class="project-card" data-title="Her Fathers Pride" data-genre="Drama" data-synopsis="Her Father’s Pride is a story of family, expectations and the Courage to live your own truth.">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/her fathers pride.jpg" alt="Her Fathers Pride" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/IO1jCnKLi9Q?si=IEHjXG9UvlZzVY_u" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">Her Fathers Pride</div>
+        <p class="project-synopsis">Her Father’s Pride is a story of family, expectations and the Courage to live your own truth.</p>
+        <a href="https://youtu.be/IO1jCnKLi9Q?si=IEHjXG9UvlZzVY_u" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+
+    <div class="project-card" data-title="Stuck In Love" data-genre="Drama" data-synopsis="STUCK IN LOVE is a story of love romance and secrets">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/coming soon stuck in love.jpg" alt="Stuck In Love" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/nOc8esJwPrs?si=RHP1nNBwc0Z9dljg" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">Stuck In Love</div>
+        <p class="project-synopsis">STUCK IN LOVE is a story of love romance and secrets.
+What happens when your deepest love becomes your heaviest burden?</p>
+        <a href="https://youtu.be/nOc8esJwPrs?si=RHP1nNBwc0Z9dljg" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+
+    <div class="project-card" data-title="Shadows of Betrayal" data-genre="Drama" data-synopsis="Shadows of Betrayal is a story of love, friendship and choices. Sometimes, the closest hearts hide the sharpest knives.">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/shadows of betrayal sunny.jpg" alt="Shadows of Betrayal" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/3dz8m25Ck8c?si=t_N1XvZaNvT9fxyP" target="_blank" class="btn-trailer">Watch Trailer</a>
         </div>
       </div>
       <div class="project-info">
         <div class="project-genre">Drama</div>
         <div class="project-title">Shadows of Betrayal</div>
         <p class="project-synopsis">Shadows of Betrayal is a story of love, friendship and choices. Sometimes, the closest hearts hide the sharpest knives.</p>
-        <a href="https://youtu.be/3dz8m25Ck8c?si=QY5QgHJ9HHlAJlva" target="_blank" class="btn-trailer">Watch Trailer</a>
+        <a href="https://youtu.be/3dz8m25Ck8c?si=t_N1XvZaNvT9fxyP" target="_blank" class="btn-trailer">Watch Trailer</a>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card" data-title="Thick Madness" data-genre="Drama" data-synopsis="Thick madness is a drama following a young lady as she travels a journey of accepting her body. Does she win eventually or does she give in to the pressure.">
       <div class="project-poster">
         <div class="poster-placeholder">
-          <!-- <span class="poster-icon">🎬</span>
-          <span class="poster-title-text">Her Father's Pride</span> -->
-          <img src="img/projects/thick madness  ig.jpg" alt="Her Father's Pride" style="width:100%;height:100%;object-fit:cover;">
+          <img data-src="img/projects/thick madness  ig.jpg" alt="Thick Madness" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
         </div>
         <div class="project-overlay">
-          <a href="https://youtu.be/GvO7kq4cH2M?si=TKH3BB3u9Kuz_dfX" target="_blank" class="btn-trailer">Watch Trailer</a>
-        </div>
-      </div>
-      <div class="project-info">
-        <div class="project-genre">Comedy · Drama</div>
-        <div class="project-title">Thick Madness</div>
-        <p class="project-synopsis">Thick madness is a drama following a young lady as she travels a journey of accepting her body. Does she win eventually or does she give in to the pressure.</p>
-        <a href="https://youtu.be/GvO7kq4cH2M?si=TKH3BB3u9Kuz_dfX" target="_blank" class="btn-trailer">Watch Trailer</a>
-      </div>
-    </div>
-
-    <!-- <div class="project-card">
-      <div class="project-poster">
-        <div class="poster-placeholder">
-          <span class="poster-icon">🎬</span>
-          <span class="poster-title-text">The Night Before Christmas</span>
-        </div>
-        <div class="project-overlay">
-          <a href="https://www.youtube.com" target="_blank" class="btn-trailer">Watch Trailer</a>
-        </div>
-      </div>
-      <div class="project-info">
-        <div class="project-genre">Drama · Thriller</div>
-        <div class="project-title">The Night Before Christmas</div>
-        <p class="project-synopsis">A gripping festive thriller that unravels dark secrets hidden beneath holiday celebrations.</p>
-        <a href="https://www.youtube.com" target="_blank" class="btn-trailer">Watch Trailer</a>
-      </div>
-    </div> -->
-
-    <div class="project-card">
-      <div class="project-poster">
-        <div class="poster-placeholder">
-          <!-- <span class="poster-icon">🎬</span>
-          <span class="poster-title-text">Her Father's Pride</span> -->
-          <img src="img/projects/behind closed doors ig.jpg" alt="Her Father's Pride" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-        <div class="project-overlay">
-          <a href="https://youtu.be/ahxPGbLmHms?si=7SV67_KSi9Z5JS1G" target="_blank" class="btn-trailer">Watch Trailer</a>
+          <a href="https://youtu.be/GvO7kq4cH2M?si=EyBr5Uj448S3aCIy" target="_blank" class="btn-trailer">Watch Trailer</a>
         </div>
       </div>
       <div class="project-info">
         <div class="project-genre">Drama</div>
-        <div class="project-title">Behind Closed Doors</div>
-        <p class="project-synopsis">A nollywood thriller that will have you sitting at the edge of your seat and wanting more when it’s over.</p>
-        <a href="https://youtu.be/ahxPGbLmHms?si=7SV67_KSi9Z5JS1G" target="_blank" class="btn-trailer">Watch Trailer</a>
+        <div class="project-title">Thick Madness</div>
+        <p class="project-synopsis">Thick madness is a drama following a young lady as she travels a journey of accepting her body. Does she win eventually or does she give in to the pressure.</p>
+        <a href="https://youtu.be/GvO7kq4cH2M?si=EyBr5Uj448S3aCIy" target="_blank" class="btn-trailer">Watch Trailer</a>
       </div>
     </div>
 
-    <!-- <div class="project-card" style="display:flex;align-items:center;justify-content:center;min-height:300px;border-style:dashed;">
-      <div style="text-align:center;padding:40px;">
-        <span style="font-size:2rem;display:block;margin-bottom:12px;opacity:0.3;">+</span>
-        <div style="font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">More Coming Soon</div>
+    <div class="project-card" data-title="When Men Hunt Episode 6" data-genre="Drama" data-synopsis="These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/when men hunt  s6  ig.jpg" alt="When Men Hunt Episode 6" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/CNCo-Rq2QMU?si=7SWpumTtY5Rbx-26" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
       </div>
-    </div> -->
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">When Men Hunt Episode 6</div>
+        <p class="project-synopsis">These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.</p>
+        <a href="https://youtu.be/CNCo-Rq2QMU?si=7SWpumTtY5Rbx-26" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
 
+    <div class="project-card" data-title="When Men Hunt Episode 5" data-genre="Drama" data-synopsis="These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/when men hunt  s5  ig.jpg" alt="When Men Hunt Episode 5" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/UCY5aysRbRg?si=oiS-ikE7OOBBmGsb" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-genre">Drama</div>
+        <div class="project-title">When Men Hunt Episode 5</div>
+        <p class="project-synopsis">These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.</p>
+        <a href="https://youtu.be/UCY5aysRbRg?si=oiS-ikE7OOBBmGsb" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+
+    <div class="project-card" data-title="When Men Hunt Episode 4" data-genre="Drama" data-synopsis="These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/when men hunt ep4 ig.jpg" alt="When Men Hunt Episode 4" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/LigFsgYUfqs?si=U3c5NFJV7m8TEih1" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div cla ss="project-genre">Drama</div>
+        <div class="project-title">When Men Hunt Episode 4</div>
+        <p class="project-synopsis">These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.</p>
+        <a href="https://youtu.be/LigFsgYUfqs?si=U3c5NFJV7m8TEih1" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+
+    <div class="project-card" data-title="When Men Hunt Episode 3" data-genre="Drama" data-synopsis="These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/when men hunt ep3 ig.jpg" alt="When Men Hunt Episode 3" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/vLIkweHKDwU?si=-Gn93IuVMI3J_ICO" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div cla ss="project-genre">Drama</div>
+        <div class="project-title">When Men Hunt Episode 3</div>
+        <p class="project-synopsis">These young men are desperate to make it irrespective of the cost! When Men Hunt follows them as they navigate life in the Lagos chaos and drama. In this drama by Baggy Land Productions, expect comedy, drama and that real Naija energy.</p>
+        <a href="https://youtu.be/vLIkweHKDwU?si=-Gn93IuVMI3J_ICO" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+
+    <div class="project-card" data-title="The Night Before Christmas" data-genre="Drama" data-synopsis="The Night before Christmas is a feel-good and relatable romantic film from Baggy Land Productions. This story that brings friendship, emotions and the festive charm to life is definitely the Christmas film of the season.">
+      <div class="project-poster">
+        <div class="poster-placeholder">
+          <img data-src="img/projects/tnbc official flyer.jpg" alt="The Night Before Christmas" class="lazy-img" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="project-overlay">
+          <a href="https://youtu.be/vy1one_jmg4?si=iiy5d5yOSJ8yTkeI" target="_blank" class="btn-trailer">Watch Trailer</a>
+        </div>
+      </div>
+      <div class="project-info">
+        <div cla ss="project-genre">Drama</div>
+        <div class="project-title">The Night Before Christmas</div>
+        <p class="project-synopsis">The Night before Christmas is a feel-good and relatable romantic film from Baggy Land Productions. This story that brings friendship, emotions and the festive charm to life is definitely the Christmas film of the season.</p>
+        <a href="https://youtu.be/vy1one_jmg4?si=iiy5d5yOSJ8yTkeI" target="_blank" class="btn-trailer">Watch Trailer</a>
+      </div>
+    </div>
+  
+  </div><!-- /.projects-grid -->
+  
+  <!-- EMPTY STATE -->
+  <div class="projects-empty" id="projectsEmpty" style="display:none;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p>No projects match <strong id="emptyTerm"></strong></p>
+    <button class="btn-clear-search" id="emptyClear">Clear search</button>
+  </div>
+  
+  <!-- PAGINATION -->
+  <div class="projects-pagination" id="projectsPagination">
+    <button class="page-btn page-prev" id="pagePrev" aria-label="Previous page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="page-numbers" id="pageNumbers"></div>
+    <button class="page-btn page-next" id="pageNext" aria-label="Next page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
   </div>
 
 </section>
@@ -235,5 +584,198 @@
 </footer>
 
 <script src="js/main.js"></script>
+
+<script>
+(function () {
+  const CARDS_PER_PAGE = 15;
+ 
+  const grid        = document.getElementById('projectsGrid');
+  const searchInput = document.getElementById('projectSearch');
+  const searchClear = document.getElementById('searchClear');
+  const countEl     = document.getElementById('projectsCount');
+  const emptyEl     = document.getElementById('projectsEmpty');
+  const emptyTerm   = document.getElementById('emptyTerm');
+  const emptyClear  = document.getElementById('emptyClear');
+  const paginationEl= document.getElementById('projectsPagination');
+  const pageNumbers = document.getElementById('pageNumbers');
+  const pagePrev    = document.getElementById('pagePrev');
+  const pageNext    = document.getElementById('pageNext');
+ 
+  // Collect all cards once
+  const allCards = Array.from(grid.querySelectorAll('.project-card'));
+ 
+  let currentPage  = 1;
+  let filteredCards = [...allCards];
+ 
+  // ── Lazy loading via IntersectionObserver ──────────────────────
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        if (img.dataset.src) {
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
+          img.addEventListener('error', () => img.classList.add('loaded'), { once: true }); // still reveal on error
+        }
+        observer.unobserve(img);
+      }
+    });
+  }, { rootMargin: '200px 0px' }); // start loading 200px before visible
+ 
+  function observeImages(cards) {
+    cards.forEach(card => {
+      card.querySelectorAll('img.lazy-img[data-src]').forEach(img => observer.observe(img));
+    });
+  }
+ 
+  // ── Unload images on cards leaving the viewport (page change) ──
+  function unloadImages(cards) {
+    cards.forEach(card => {
+      card.querySelectorAll('img.lazy-img:not([data-src])').forEach(img => {
+        if (img.src) {
+          img.dataset.src = img.src;
+          img.removeAttribute('src');
+          img.classList.remove('loaded');
+        }
+      });
+    });
+  }
+ 
+  // ── Render page ────────────────────────────────────────────────
+  function renderPage() {
+    const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
+    currentPage = Math.min(currentPage, totalPages || 1);
+ 
+    const start = (currentPage - 1) * CARDS_PER_PAGE;
+    const end   = start + CARDS_PER_PAGE;
+ 
+    // Hide all, then show current page slice
+    const cardsToHide = [];
+    const cardsToShow = [];
+ 
+    allCards.forEach((card, i) => {
+      const inFiltered = filteredCards.includes(card);
+      const inPage     = inFiltered && filteredCards.indexOf(card) >= start && filteredCards.indexOf(card) < end;
+ 
+      if (inPage) {
+        card.style.display = '';
+        cardsToShow.push(card);
+      } else {
+        if (card.style.display !== 'none') cardsToHide.push(card);
+        card.style.display = 'none';
+      }
+    });
+ 
+    // Unload images leaving the page
+    unloadImages(cardsToHide);
+    // Lazy-observe newly visible images
+    observeImages(cardsToShow);
+ 
+    // Empty state
+    if (filteredCards.length === 0) {
+      emptyEl.style.display = 'block';
+      emptyTerm.textContent = `"${searchInput.value.trim()}"`;
+      paginationEl.style.display = 'none';
+    } else {
+      emptyEl.style.display = 'none';
+      paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
+    }
+ 
+    // Count
+    countEl.textContent = filteredCards.length === allCards.length
+      ? `${allCards.length} project${allCards.length !== 1 ? 's' : ''}`
+      : `${filteredCards.length} of ${allCards.length} projects`;
+ 
+    // Pagination controls
+    renderPagination(totalPages);
+  }
+ 
+  // ── Pagination buttons ─────────────────────────────────────────
+  function renderPagination(totalPages) {
+    pagePrev.disabled = currentPage <= 1;
+    pageNext.disabled = currentPage >= totalPages;
+    pageNumbers.innerHTML = '';
+ 
+    if (totalPages <= 1) return;
+ 
+    // Smart page number list: always show first/last, window around current
+    const pages = getPageList(currentPage, totalPages);
+    pages.forEach(p => {
+      if (p === '…') {
+        const el = document.createElement('span');
+        el.className = 'page-ellipsis';
+        el.textContent = '…';
+        pageNumbers.appendChild(el);
+      } else {
+        const btn = document.createElement('button');
+        btn.className = 'page-num' + (p === currentPage ? ' active' : '');
+        btn.textContent = p;
+        btn.addEventListener('click', () => goToPage(p));
+        pageNumbers.appendChild(btn);
+      }
+    });
+  }
+ 
+  function getPageList(current, total) {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages = new Set([1, total, current, current - 1, current + 1].filter(p => p >= 1 && p <= total));
+    const sorted = Array.from(pages).sort((a, b) => a - b);
+    const result = [];
+    sorted.forEach((p, i) => {
+      if (i > 0 && p - sorted[i - 1] > 1) result.push('…');
+      result.push(p);
+    });
+    return result;
+  }
+ 
+  function goToPage(page) {
+    currentPage = page;
+    renderPage();
+    // Scroll to top of grid
+    grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+ 
+  // ── Search ─────────────────────────────────────────────────────
+  let searchTimeout;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const q = searchInput.value.trim().toLowerCase();
+      searchClear.classList.toggle('visible', q.length > 0);
+ 
+      filteredCards = q
+        ? allCards.filter(card => {
+            const title   = (card.dataset.title   || '').toLowerCase();
+            const genre   = (card.dataset.genre   || '').toLowerCase();
+            const synopsis= (card.dataset.synopsis|| '').toLowerCase();
+            return title.includes(q) || genre.includes(q) || synopsis.includes(q);
+          })
+        : [...allCards];
+ 
+      currentPage = 1;
+      renderPage();
+    }, 200); // debounce
+  });
+ 
+  function clearSearch() {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    filteredCards = [...allCards];
+    currentPage = 1;
+    renderPage();
+    searchInput.focus();
+  }
+ 
+  searchClear.addEventListener('click', clearSearch);
+  emptyClear.addEventListener('click', clearSearch);
+  pagePrev.addEventListener('click', () => goToPage(currentPage - 1));
+  pageNext.addEventListener('click', () => goToPage(currentPage + 1));
+ 
+  // ── Init ───────────────────────────────────────────────────────
+  renderPage();
+})();
+</script>
+
 </body>
 </html>
