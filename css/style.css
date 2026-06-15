@@ -594,6 +594,7 @@
   }
   .contact-item-text { font-size: 0.88rem; line-height: 1.6; color: var(--text-muted); }
   .contact-item-label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
+  .contact-item-text a { color: var(--text-muted); text-decoration: none;}
 
   .social-links { display: flex; gap: 10px; margin-top: 2rem; }
   .social-btn {
