@@ -104,6 +104,16 @@
     }
   }
 
+  .about-banner-one {
+    background: url(../img/about-banner.jpg.jpeg) no-repeat center !important;
+    background-size: cover !important;
+  }
+
+  .about-banner-two {
+    background: url(../img/about-banner-two.jpg.jpeg) no-repeat center !important;
+    background-size: cover !important;
+  }
+
   .hero-film-strips {
     position: absolute; inset: 0; pointer-events: none;
     overflow: hidden;
@@ -246,7 +256,7 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: 3.5rem; color: var(--red); letter-spacing: 2px;
   }
-  .about-stat-label { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .about-stat-label { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-white); background-color: #e0002a; padding: 5px; }
 
   .about-text h3 {
     font-family: 'Cormorant Garamond', serif;
